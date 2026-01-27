@@ -1,0 +1,85 @@
+# Project settings
+project_name: "Visium HD - Cancer Territories"
+data_dir: "data/"
+results_dir: "report"
+
+# Sample definitions - can be filenames or identifiers
+samples:
+  - 485_manual
+  - 27495_manual
+  - 31491_manual
+  - PC1
+  - PC2
+  - PC3
+
+# Input file mapping
+input_files:
+  485_manual:
+    coordinates: "data/path"
+    counts: "data/raw/sample_B.csv"
+    cell_segments: "data/raw/sample_C.csv"
+  27495_manual:
+    coordinates: "data/path"
+    counts: "data/raw/sample_B.csv"
+    cell_segments: "data/raw/sample_C.csv"
+  31491_manual:
+    coordinates: "data/path"
+    counts: "data/raw/sample_B.csv"
+    cell_segments: "data/raw/sample_C.csv"
+  PC1:
+    coordinates: "data/path"
+    counts: "data/raw/sample_B.csv"
+    cell_segments: "data/raw/sample_C.csv"
+  PC2:
+    coordinates: "data/path"
+    counts: "data/raw/sample_B.csv"
+    cell_segments: "data/raw/sample_C.csv"
+  PC3:
+    coordinates: "data/path"
+    counts: "data/raw/sample_B.csv"
+    cell_segments: "data/raw/sample_C.csv"
+  
+
+# Preprocessing parameters
+preprocessing:
+  remove_na: true
+  normalize: true
+  log_transform: false
+
+# Analysis parameters
+analysis:
+  method: "pca"  # options: pca, clustering, regression, etc
+  n_components: 3
+  n_clusters: 4
+  test_type: "t-test"  # statistical test
+
+# Visualization parameters
+visualization:
+  plot_format: "pdf"
+  dpi: 300
+  theme: "ggplot2"
+
+# Container settings
+container_settings:
+  use_containers: true
+  engine: "singularity"  # or "docker"
+  python_image: "docker://python:3.11-slim"
+  r_image: "docker://rocker/r-base:4.3"
+
+# Resource allocation
+resources:
+  default:
+    mem_mb: 4000
+    time_min: 60
+  preprocessing:
+    mem_mb: 8000
+    time_min: 90
+  analysis:
+    mem_mb: 16000
+    time_min: 120
+  visualization:
+    mem_mb: 4000
+    time_min: 30
+
+# Logging
+log_dir: "logs"
