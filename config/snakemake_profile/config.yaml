@@ -1,0 +1,12 @@
+executor: slurm-jobstep 
+
+jobs: 6
+cores: 48
+verbose: true
+printshellcmds: true
+
+default-resources:
+  account: martinp4
+  partition: "defq"
+  mem_mb: 8000
+  runtime: 60

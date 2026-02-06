@@ -1,7 +1,6 @@
 # Project settings
 project_name: "Visium HD - Cancer Territories"
 data_dir: "data/"
-results_dir: "report"
 
 # Sample definitions - can be filenames or identifiers
 samples:
@@ -15,71 +14,100 @@ samples:
 # Input file mapping
 input_files:
   485_manual:
-    coordinates: "data/path"
-    counts: "data/raw/sample_B.csv"
-    cell_segments: "data/raw/sample_C.csv"
+    coordinates: "data/ovarian/485_manual/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
+    counts     : "data/ovarian/485_manual/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/485_Cyt.tif"
+    scale      : "data/ovarian/485_manual/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
   27495_manual:
-    coordinates: "data/path"
-    counts: "data/raw/sample_B.csv"
-    cell_segments: "data/raw/sample_C.csv"
+    coordinates: "data/ovarian/27495_manual/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
+    counts     : "data/ovarian/27495_manual/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/27495_Cyt.tif"
+    scale      : "data/ovarian/27495_manual/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
   31491_manual:
-    coordinates: "data/path"
-    counts: "data/raw/sample_B.csv"
-    cell_segments: "data/raw/sample_C.csv"
+    coordinates: "data/ovarian/31491_manual/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
+    counts     : "data/ovarian/31491_manual/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/31491_Cyt.tif"
+    scale      : "data/ovarian/31491_manual/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
   PC1:
-    coordinates: "data/path"
-    counts: "data/raw/sample_B.csv"
-    cell_segments: "data/raw/sample_C.csv"
+    coordinates: "data/pancreatic/PC1/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
+    counts     : "data/pancreatic/PC1/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/PC1_Cyt.tif"
+    scale      : "data/pancreatic/PC1/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
   PC2:
-    coordinates: "data/path"
-    counts: "data/raw/sample_B.csv"
-    cell_segments: "data/raw/sample_C.csv"
+    coordinates: "data/pancreatic/PC2/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
+    counts     : "data/pancreatic/PC2/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/PC2_Cyt.tif"
+    scale      : "data/pancreatic/PC2/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
   PC3:
-    coordinates: "data/path"
-    counts: "data/raw/sample_B.csv"
-    cell_segments: "data/raw/sample_C.csv"
+    coordinates: "data/pancreatic/PC3/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
+    counts     : "data/pancreatic/PC3/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/PC2_Cyt.tif"
+    scale      : "data/pancreatic/PC3/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
   
+# QC parameters
+qc:
+  min_cells    : 100
+  min_features : 100
+  bin_size     : 32
 
-# Preprocessing parameters
-preprocessing:
-  remove_na: true
-  normalize: true
-  log_transform: false
 
-# Analysis parameters
-analysis:
-  method: "pca"  # options: pca, clustering, regression, etc
-  n_components: 3
-  n_clusters: 4
-  test_type: "t-test"  # statistical test
+# Vesalius parameters
+vesalius:
+  feature_set   : true
+  resolution    : 1
+  dim_reduc     : "PCA"
+  dims          : 30
+  equalize      : 2.5
+  sigma         : 2
+  iter          : 20
+  col_resolution: 20 
+  distance      : 0.01
 
-# Visualization parameters
-visualization:
-  plot_format: "pdf"
-  dpi: 300
-  theme: "ggplot2"
 
-# Container settings
-container_settings:
-  use_containers: true
-  engine: "singularity"  # or "docker"
-  python_image: "docker://python:3.11-slim"
-  r_image: "docker://rocker/r-base:4.3"
+# Kuresi parameters
+kuresi:
+  method: "mean_ratio"
+  scale : true
+  center: true
+ 
 
-# Resource allocation
+ 
+
+
+# ============================================================================
+# HPC-OPTIMIZED RESOURCE ALLOCATION
+# ============================================================================
+
+
 resources:
-  default:
-    mem_mb: 4000
-    time_min: 60
-  preprocessing:
-    mem_mb: 8000
-    time_min: 90
-  analysis:
-    mem_mb: 16000
-    time_min: 120
-  visualization:
-    mem_mb: 4000
-    time_min: 30
+  qc:
+    mem_mb: 20000      
+    time_min: 120       
+    cpus: 1           
+  vesalius:
+    mem_mb: 50000      
+    time_min: 480      
+    cpus: 4           
+  kuresi:
+    mem_mb: 32000      
+    time_min: 120      
+    cpus: 1            
+  
+             
+
+# ============================================================================
+# SLURM-SPECIFIC SETTINGS
+# ============================================================================
+
+# Partition/Queue configuration
+# Adjust based on your HPC's queue names (check with: sinfo)
+slurm:
+  slurm_account: "martinp4"
+  partition: defq
+  mail_type : FAIL,BEGIN,END
+  mail_user : patrick.martin@cshs.org
+  
 
 # Logging
 log_dir: "logs"
+slurm_log_dir: "logs/slurm"  # For SLURM output files
