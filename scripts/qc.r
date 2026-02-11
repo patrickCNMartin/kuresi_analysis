@@ -5,6 +5,7 @@
 library(future, lib.loc = "lib_cache/")
 library(future.apply, lib.loc = "lib_cache/")
 library(ggplot2)
+library(Kuresi, lib.loc = "lib_cache/")
 library(ggpubr, lib.loc = "lib_cache/")
 library(vesalius, lib.loc = "lib_cache/")
 library(argparser, lib.loc = "lib_cache/")
@@ -25,7 +26,7 @@ p <- add_argument(p, "--image", short = "-im", help = "Path to H&E image", type 
 
 p <- add_argument(p, "--scale", short = "-sc", help = "Path to scale factors", type = "character")
 
-p <- add_argument(p, "--bin_size", short = "-r", help = "Number of bins (assuming 2um base data)", type = "character")
+p <- add_argument(p, "--bin_size", short = "-r", help = "Number of bins (assuming 2um base data)", type = "numeric")
 
 p <- add_argument(p, "--min_features", short = "-mf", help = "Min Number of Features per cells", type = "numeric")
 
@@ -47,17 +48,15 @@ output_dir <- argv$output_dir
 
 source("scripts/utils/io.r")
 source("scripts/utils/utils.r")
+source("scripts/utils/viz.r")
 #-----------------------------------------------------------------------------#
 # Load data
 #-----------------------------------------------------------------------------#
 cat("QC Start")
-if (type = "visiumhd") {
-    load_data <- load_visiumhd
-    
-} else {
-    load_data <- load_visium
-}
-data <- load_data(counts, coordinates, image , scale)
+data <- load_visiumhd(counts, coordinates, image , scale)
+gene_sets <- win_lose_genes()
+win_genes <- gene_sets$win
+lose_genes <- gene_sets$lose
 cat("Data Loading - Completed")
 #-----------------------------------------------------------------------------#
 # Binning data
@@ -78,16 +77,16 @@ coord <- aggregated_data$coords[aggregated_data$coords$bin_id %in% colnames(coun
 #-----------------------------------------------------------------------------#
 qc_1 <- view_feature_map(counts, coord)
 qc_2 <- view_count_map(counts, coord)
-ggsave(paste0(output_dir, "feature_map.pdf"), plot = qc_1, width = 12, height = 12, units = "in")
-ggsave(paste0(output_dir, "count_map.pdf"), plot = qc_2, width = 12, height = 12, units = "in")
+ggsave(file.path(output_dir, "feature_map.pdf"), plot = qc_1, width = 12, height = 12, units = "in")
+ggsave(file.path(output_dir, "count_map.pdf"), plot = qc_2, width = 12, height = 12, units = "in")
 
 #-----------------------------------------------------------------------------#
 # Get QC plots of only features of interest
 #-----------------------------------------------------------------------------#
 qc_3 <- view_feature_map(counts, coord, features)
 qc_4 <- view_count_map(counts, coord, features)
-ggsave(paste0(output_dir, "feature_map_win_loose.pdf"), plot = qc_3, width = 12, height = 12, units = "in")
-ggsave(paste0(output_dir, "count_map_win_loose.pdf"), plot = qc_4, width = 12, height = 12, units = "in")
+ggsave(file.path(output_dir, "feature_map_win_loose.pdf"), plot = qc_3, width = 12, height = 12, units = "in")
+ggsave(file.path(output_dir, "count_map_win_loose.pdf"), plot = qc_4, width = 12, height = 12, units = "in")
 #-----------------------------------------------------------------------------#
 # Export metrics
 #-----------------------------------------------------------------------------#
@@ -109,4 +108,4 @@ writeLines(report_text, con = file.path(output_dir, "qc_report.txt"))
 # Export data
 #-----------------------------------------------------------------------------#
 out <- list("counts" = counts , "coord" = coord)
-saveRDS(out, file = paste0(output_dir,"qc_data.rds"))
+saveRDS(out, file = file.path(output_dir,"qc_data.rds"))

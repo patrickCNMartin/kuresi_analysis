@@ -42,7 +42,7 @@ lose_genes <- gene_sets$lose
 #-----------------------------------------------------------------------------#
 # Compute Scores
 #-----------------------------------------------------------------------------#
-if (grepl("ELO", method)) {
+if (method == "ELO") {
     kuresi_score <- compute_competition_outcomes(counts,
                                                  territories,
                                                  win_genes,
@@ -92,11 +92,11 @@ if (grepl("ELO", method)) {
 }
 
 kur <- score_plot(kuresi_score)
-ggsave(paste0(output_dir, "kuresi_score_plot.pdf"), plot = kur, width = 12, height = 12, units = "in")
+ggsave(file.path(output_dir, "kuresi_score_plot.pdf"), plot = kur, width = 12, height = 12, units = "in")
 #-----------------------------------------------------------------------------#
 # Export and Save
 #-----------------------------------------------------------------------------#
-saveRDS(kuresi_score, file = paste0(output_dir, "kuresi_competition_scores.rds"))
+saveRDS(kuresi_score, file = file.path(output_dir, "kuresi_competition_scores.rds"))
 #-----------------------------------------------------------------------------#
 # DONE
 #-----------------------------------------------------------------------------#

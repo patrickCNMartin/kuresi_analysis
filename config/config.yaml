@@ -81,15 +81,15 @@ kuresi:
 
 resources:
   qc:
-    mem_mb: 20000      
+    mem_mb: 80000      
     time_min: 120       
     cpus: 1           
   vesalius:
-    mem_mb: 50000      
+    mem_mb: 80000      
     time_min: 480      
     cpus: 4           
   kuresi:
-    mem_mb: 32000      
+    mem_mb: 80000      
     time_min: 120      
     cpus: 1            
   

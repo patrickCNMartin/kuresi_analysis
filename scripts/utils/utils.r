@@ -45,15 +45,17 @@ bin_spatial_data <- function(counts, coordinates, bin_size = 16) {
   cells_per_bin <- colSums(mapping)
   binned_counts <- t(t(binned_counts) / cells_per_bin)
   
-  # 5. Aggregate Coordinates (Average of original x/y)
   binned_coords <- dt[, .(
-    avg_x = mean(x), 
-    avg_y = mean(y), 
+    x = mean(x), 
+    y = mean(y), 
     cell_count = .N
-  ), by = bin_id][order(bin_id)]
+  ), by = .(bin_id)][order(bin_id)]
   
-  # Final Correspondence: Set column names of matrix to the bin_id
-  colnames(binned_counts) <- binned_coords$bin_id
+  # Create a 'barcodes' column in coords to match the matrix
+  binned_coords[, barcodes := as.character(bin_id)]
+  
+  # Set matrix colnames to match
+  colnames(binned_counts) <- binned_coords$barcodes
   
   return(list(
     counts = binned_counts,

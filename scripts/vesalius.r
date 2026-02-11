@@ -123,8 +123,8 @@ cat("Territory Pooling - Completed\n")
 #-----------------------------------------------------------------------------#
 img <- image_plot(vesalius)
 ter <- territory_plot(vesalius, cex_pt = 0.3)
-ggsave(paste0(output, "vesalius_image_plot.pdf"), plot = img, width = 12, height = 12, units = "in")
-ggsave(paste0(output, "vesalius_territory_plot.pdf"), plot = ter, width = 12, height = 12, units = "in")
+ggsave(file.path(output, "vesalius_image_plot.pdf"), plot = img, width = 12, height = 12, units = "in")
+ggsave(file.path(output, "vesalius_territory_plot.pdf"), plot = ter, width = 12, height = 12, units = "in")
 #-----------------------------------------------------------------------------#
 # Export Metrics
 #-----------------------------------------------------------------------------#
@@ -145,7 +145,7 @@ writeLines(report_text, con = file.path(output_dir, "vesalius_report.txt"))
 #-----------------------------------------------------------------------------#
 # Export and Save
 #-----------------------------------------------------------------------------#
-saveRDS(vesalius, file = paste0(output_dir,"vesalius_territories.rds"))
+saveRDS(vesalius, file = file.path(output_dir,"vesalius_territories.rds"))
 #-----------------------------------------------------------------------------#
 # DONE
 #-----------------------------------------------------------------------------#
