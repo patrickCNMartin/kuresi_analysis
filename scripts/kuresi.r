@@ -12,7 +12,7 @@ set.seed(1547)
 #-----------------------------------------------------------------------------#
 # ARGS & OPTIONS
 #-----------------------------------------------------------------------------#
-p <- arg_parser("Kuresi Ratio Score")
+p <- arg_parser("Kuresi Ratio Score\n")
 
 p <- add_argument(p, "--sample_name", short = "-sm", help = "Sample Name", type = "character")
 p <- add_argument(p, "--input_rds", short = "-i", help = "Vesalius Object location", type = "character")
@@ -85,7 +85,7 @@ writeLines(report_text, con = file.path(output_dir, "kuresi_report.txt"))
 #-----------------------------------------------------------------------------#
 # Plotting Kuresi
 #-----------------------------------------------------------------------------#
-if (grepl("ELO", method)) {
+if (method == "ELO") {
     # PLACE HOLDER
 } else {
     kuresi_score <- kuresi_score[,c("x","y", method)]

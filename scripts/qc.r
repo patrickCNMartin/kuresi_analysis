@@ -52,12 +52,13 @@ source("scripts/utils/viz.r")
 #-----------------------------------------------------------------------------#
 # Load data
 #-----------------------------------------------------------------------------#
-cat("QC Start")
+cat("QC Start \n")
 data <- load_visiumhd(counts, coordinates, image , scale)
 gene_sets <- win_lose_genes()
 win_genes <- gene_sets$win
 lose_genes <- gene_sets$lose
-cat("Data Loading - Completed")
+features <- c(win_genes, lose_genes)
+cat("Data Loading - Completed\n")
 #-----------------------------------------------------------------------------#
 # Binning data
 #-----------------------------------------------------------------------------#
@@ -69,7 +70,7 @@ aggregated_data <- bin_spatial_data(data$counts, coord, bin_size = bin_size)
 # Count Filtering
 #-----------------------------------------------------------------------------#
 counts <- filter_counts(aggregated_data$counts, min_features, min_cells)
-coord <- aggregated_data$coords[aggregated_data$coords$bin_id %in% colnames(counts), ]
+coord <- aggregated_data$coords[aggregated_data$coords$barcodes %in% colnames(counts), ]
 
 
 #-----------------------------------------------------------------------------#
@@ -106,6 +107,7 @@ report_text <- sprintf(
 writeLines(report_text, con = file.path(output_dir, "qc_report.txt"))
 #-----------------------------------------------------------------------------#
 # Export data
+# To be updated with images later.
 #-----------------------------------------------------------------------------#
-out <- list("counts" = counts , "coord" = coord)
+out <- list("counts" = counts , "coord" = coord, "image" = NULL, "scale" = "auto")
 saveRDS(out, file = file.path(output_dir,"qc_data.rds"))

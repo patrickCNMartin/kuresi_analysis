@@ -40,9 +40,9 @@ rule qc:
         qc_rds = f"{QC_DIR}/{{sample}}/qc_data.rds",
         qc_report = f"{QC_DIR}/{{sample}}/qc_report.txt",
         qc_1 = f"{QC_DIR}/{{sample}}/feature_map.pdf",
-        qc_2 = f"{QC_DIR}/{{sample}}/cell_map.pdf",
+        qc_2 = f"{QC_DIR}/{{sample}}/count_map.pdf",
         qc_3 = f"{QC_DIR}/{{sample}}/feature_map_win_loose.pdf",
-        qc_4 = f"{QC_DIR}/{{sample}}/cell_map_win_loose.pdf",
+        qc_4 = f"{QC_DIR}/{{sample}}/count_map_win_loose.pdf",
     params:
         sample_name = "{sample}",
         output_dir = f"{QC_DIR}/{{sample}}",

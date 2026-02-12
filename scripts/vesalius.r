@@ -59,6 +59,8 @@ distance <- argv$distance
 output_dir <- argv$output_dir
 cores <- argv$cores
 
+max_size <- 10000 * 1024^2
+options(future.globals.maxSize = max_size)
 plan(multicore, workers = cores)
 #-----------------------------------------------------------------------------#
 # INPUT
@@ -74,14 +76,16 @@ if (feature_set) {
 }
 
 data <- readRDS(rds)
+
+coordinates <- as.data.frame(data$coord)
 cat("Data Loading - Completed\n")
 #-----------------------------------------------------------------------------#
 # Vesalius Territories
 #-----------------------------------------------------------------------------#
-vesalius <- build_vesalius_assay(data$coordinates,
+vesalius <- build_vesalius_assay(coordinates,
                                  data$counts,
                                  data$image,
-                                 assay = sample,
+                                 assay = sample_name,
                                  scale = data$scale,
                                  verbose = FALSE)
 cat("Object Build - Completed\n")
@@ -123,8 +127,8 @@ cat("Territory Pooling - Completed\n")
 #-----------------------------------------------------------------------------#
 img <- image_plot(vesalius)
 ter <- territory_plot(vesalius, cex_pt = 0.3)
-ggsave(file.path(output, "vesalius_image_plot.pdf"), plot = img, width = 12, height = 12, units = "in")
-ggsave(file.path(output, "vesalius_territory_plot.pdf"), plot = ter, width = 12, height = 12, units = "in")
+ggsave(file.path(output_dir, "vesalius_image_plot.pdf"), plot = img, width = 12, height = 12, units = "in")
+ggsave(file.path(output_dir, "vesalius_territory_plot.pdf"), plot = ter, width = 12, height = 12, units = "in")
 #-----------------------------------------------------------------------------#
 # Export Metrics
 #-----------------------------------------------------------------------------#
@@ -137,7 +141,7 @@ report_text <- sprintf(
     sample_name,
     strrep("=", 50),
     n_cells,
-    n_territory,
+    n_territories,
     isolated
 )
 
@@ -145,7 +149,7 @@ writeLines(report_text, con = file.path(output_dir, "vesalius_report.txt"))
 #-----------------------------------------------------------------------------#
 # Export and Save
 #-----------------------------------------------------------------------------#
-saveRDS(vesalius, file = file.path(output_dir,"vesalius_territories.rds"))
+saveRDS(vesalius, file = file.path(output_dir,"vesalius_data.rds"))
 #-----------------------------------------------------------------------------#
 # DONE
 #-----------------------------------------------------------------------------#

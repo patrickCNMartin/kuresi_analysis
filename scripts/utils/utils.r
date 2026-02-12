@@ -52,11 +52,11 @@ bin_spatial_data <- function(counts, coordinates, bin_size = 16) {
   ), by = .(bin_id)][order(bin_id)]
   
   # Create a 'barcodes' column in coords to match the matrix
-  binned_coords[, barcodes := as.character(bin_id)]
+  binned_coords[, barcodes := as.character(binned_coords$bin_id)]
   
   # Set matrix colnames to match
   colnames(binned_counts) <- binned_coords$barcodes
-  
+  binned_coords <- binned_coords[,c("barcodes", "x","y")]
   return(list(
     counts = binned_counts,
     coords = binned_coords
