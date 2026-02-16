@@ -24,4 +24,4 @@ install.packages("Matrix",repo = "https://cloud.r-project.org", lib = "lib_cache
 BiocManager::install("rhdf5", lib = "lib_cache/")
 
 remotes::install_github("WonLab-CS/Vesalius@4c0b03c", lib = "lib_cache/") 
-remotes::install_github("patrickCNMartin/Kuresi@37708d4", lib = "lib_cache/")
+remotes::install_github("patrickCNMartin/Kuresi@fabfcbc", lib = "lib_cache/")

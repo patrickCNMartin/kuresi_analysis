@@ -50,3 +50,5 @@ rsconnect/
 
 # pesky mac files
 .DS_Store
+
+results/

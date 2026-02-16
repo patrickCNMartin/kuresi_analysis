@@ -11,20 +11,20 @@ configfile: "config/config.yaml"
 SAMPLES = config["samples"]
 
 # Define output directories
-QC_DIR = "results/qc"
-VESALIUS_DIR = "results/vesalius"
-KURESI_DIR = "results/kuresi"
-PLOTS_DIR = "results/plots"
+QC_DIR = "qc"
+VESALIUS_DIR = "vesalius"
+KURESI_DIR = "kuresi"
+PLOTS_DIR = "plots"
+RESULTS_BASE = "results"
 
 # Create a rule to define all final outputs
 rule all:
     input:
-        expand(f"{QC_DIR}/{{sample}}/qc_data.rds", sample=SAMPLES),
-        expand(f"{QC_DIR}/{{sample}}/qc_report.txt", sample=SAMPLES),
-        expand(f"{VESALIUS_DIR}/{{sample}}/vesalius_data.rds", sample=SAMPLES),
-        expand(f"{VESALIUS_DIR}/{{sample}}/vesalius_report.txt", sample=SAMPLES),
-        expand(f"{KURESI_DIR}/{{sample}}/kuresi_competition_scores.rds", sample=SAMPLES),
-        expand(f"{KURESI_DIR}/{{sample}}/kuresi_report.txt", sample=SAMPLES)
+        expand(f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/qc_data.rds", sample=SAMPLES),
+        expand(f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_data.rds", sample=SAMPLES),
+        expand(f"{RESULTS_BASE}/{{sample}}/{KURESI_DIR}/kuresi_competition_scores.rds", sample=SAMPLES),
+        expand(f"{RESULTS_BASE}/{{sample}}/report.txt", sample=SAMPLES),
+
 
 
 # ============================================================================
@@ -37,15 +37,15 @@ rule qc:
         scale = lambda wildcards: config["input_files"][wildcards.sample]["scale"],
         image = lambda wildcards: config["input_files"][wildcards.sample]["image"],
     output:
-        qc_rds = f"{QC_DIR}/{{sample}}/qc_data.rds",
-        qc_report = f"{QC_DIR}/{{sample}}/qc_report.txt",
-        qc_1 = f"{QC_DIR}/{{sample}}/feature_map.pdf",
-        qc_2 = f"{QC_DIR}/{{sample}}/count_map.pdf",
-        qc_3 = f"{QC_DIR}/{{sample}}/feature_map_win_loose.pdf",
-        qc_4 = f"{QC_DIR}/{{sample}}/count_map_win_loose.pdf",
+        qc_rds = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/qc_data.rds",
+        qc_1 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/feature_map.pdf",
+        qc_2 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/count_map.pdf",
+        qc_3 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/feature_map_win_loose.pdf",
+        qc_4 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/count_map_win_loose.pdf",
+        qc_report = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/qc_report.txt",
     params:
         sample_name = "{sample}",
-        output_dir = f"{QC_DIR}/{{sample}}",
+        output_dir = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}",
         bin_size = config["qc"]["bin_size"],
         min_cells = config["qc"]["min_cells"],
         min_features = config["qc"]["min_features"]
@@ -71,6 +71,7 @@ rule qc:
             --min_features {params.min_features} \
             --bin_size {params.bin_size} \
             --output_dir {params.output_dir} \
+            --report_file {output.qc_report} \
             2>&1 | tee {log}
         """
 
@@ -82,13 +83,13 @@ rule vesalius:
     input:
         qc_data = rules.qc.output.qc_rds,
     output:
-        vesalius_rds = f"{VESALIUS_DIR}/{{sample}}/vesalius_data.rds",
-        vesalius_report = f"{VESALIUS_DIR}/{{sample}}/vesalius_report.txt",
-        vesalius_territory = f"{VESALIUS_DIR}/{{sample}}/vesalius_territory_plot.pdf",
-        vesalius_image = f"{VESALIUS_DIR}/{{sample}}/vesalius_image_plot.pdf",
+        vesalius_rds = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_data.rds",
+        vesalius_territory = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_territory_plot.pdf",
+        vesalius_image = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_image_plot.pdf",
+        vesalius_report = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_report.txt",
     params:
         sample_name = "{sample}",
-        output_dir = f"{VESALIUS_DIR}/{{sample}}",
+        output_dir = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}",
         feature_set = config["vesalius"]["feature_set"],
         resolution = config["vesalius"]["resolution"],
         dim_reduc = config["vesalius"]["dim_reduc"],
@@ -124,6 +125,7 @@ rule vesalius:
             --col_resolution {params.col_resolution} \
             --distance {params.distance} \
             --output_dir {params.output_dir} \
+            --report_file {output.vesalius_report} \
             --cores {threads} \
             2>&1 | tee {log}
         """
@@ -136,12 +138,12 @@ rule kuresi:
     input:
         vesalius_data = rules.vesalius.output.vesalius_rds,
     output:
-        kuresi_rds = f"{KURESI_DIR}/{{sample}}/kuresi_competition_scores.rds",
-        kuresi_plot = f"{KURESI_DIR}/{{sample}}/kuresi_score_plot.pdf",
-        kuresi_report = f"{KURESI_DIR}/{{sample}}/kuresi_report.txt",
+        kuresi_rds = f"{RESULTS_BASE}/{{sample}}/{KURESI_DIR}/kuresi_competition_scores.rds",
+        kuresi_plot = f"{RESULTS_BASE}/{{sample}}/{KURESI_DIR}/kuresi_score_plot.pdf",
+        kuresi_report = f"{RESULTS_BASE}/{{sample}}/{KURESI_DIR}/kuresi_report.txt",
     params:
         sample_name = "{sample}",
-        output_dir = f"{KURESI_DIR}/{{sample}}",
+        output_dir = f"{RESULTS_BASE}/{{sample}}/{KURESI_DIR}",
         method = config["kuresi"]["method"],
         scale = config["kuresi"]["scale"],
         center = config["kuresi"]["center"],
@@ -165,5 +167,22 @@ rule kuresi:
             --scale {params.scale} \
             --center {params.center} \
             --output_dir {params.output_dir} \
+            --report_file {output.kuresi_report} \
             2>&1 | tee {log}
+        """
+
+
+# ============================================================================
+# RULE 4: Concatenate all reports into unified report
+# ============================================================================
+rule concatenate_reports:
+    input:
+        qc_report = rules.qc.output.qc_report,
+        vesalius_report = rules.vesalius.output.vesalius_report,
+        kuresi_report = rules.kuresi.output.kuresi_report,
+    output:
+        unified_report = f"{RESULTS_BASE}/{{sample}}/report.txt",
+    shell:
+        """
+        cat {input.qc_report} {input.vesalius_report} {input.kuresi_report} > {output.unified_report}
         """

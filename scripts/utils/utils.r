@@ -43,7 +43,7 @@ bin_spatial_data <- function(counts, coordinates, bin_size = 16) {
   
   # Convert sums to averages by dividing by the number of cells per bin
   cells_per_bin <- colSums(mapping)
-  binned_counts <- t(t(binned_counts) / cells_per_bin)
+  #binned_counts <- t(t(binned_counts) / cells_per_bin)
   
   binned_coords <- dt[, .(
     x = mean(x), 

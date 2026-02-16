@@ -2,6 +2,7 @@
 #-----------------------------------------------------------------------------#
 # LIBRARIES
 #-----------------------------------------------------------------------------#
+library(ggplot2)
 library(Kuresi, lib.loc = "lib_cache/")
 library(future, lib.loc = "lib_cache/")
 library(future.apply, lib.loc = "lib_cache/")
@@ -20,6 +21,7 @@ p <- add_argument(p, "--method", short = "-m", help = "Kuresi Method", type = "c
 p <- add_argument(p, "--scale", short = "-s", help = "Scale Ratio Score", type = "logical")
 p <- add_argument(p, "--center", short = "-c", help = "Center Ratio Score", type = "logical")
 p <- add_argument(p, "--output_dir", short = "-o", help = "Output Kuresi Scores", type = "character")
+p <- add_argument(p, "--report_file", short = "-rf", help = "Report File to generate", type = "character")
 
 argv <- parse_args(p)
 sample_name <- argv$sample_name
@@ -29,12 +31,13 @@ method <- argv$method
 scale <- argv$scale
 center <- argv$center
 output_dir <- argv$output_dir
+report_file <- argv$report_file
 
 #-----------------------------------------------------------------------------#
 # INPUT
 #-----------------------------------------------------------------------------#
 vesalius <- readRDS(input_rds)
-counts <- vesalius@counts$log_norm
+counts <- vesalius@counts$raw
 territories <- vesalius@territories
 gene_sets <- win_lose_genes()
 win_genes <- gene_sets$win
@@ -71,7 +74,7 @@ med_score <- median(kuresi_score[,method])
 n_score <- length(unique(kuresi_score[,method]))
 # Write QC report
 report_text <- sprintf(
-    "Kuresi Report for %s\n%s\nMetrics:\n  Max Score: %d\n  Min Score: %d\n  Mean Score: %.1f\n  Median Score: %.1f\n  Score Count: %d\n",
+    "Kuresi Report for %s\n%s\nMetrics:\n  Max Score: %.0f\n  Min Score: %.0f\n  Mean Score: %.1f\n  Median Score: %.1f\n  Score Count: %.0f\n",
     sample_name,
     strrep("=", 50),
     max_score,
@@ -81,7 +84,7 @@ report_text <- sprintf(
     n_score
 )
 
-writeLines(report_text, con = file.path(output_dir, "kuresi_report.txt"))
+writeLines(report_text, con = file.path(report_file))
 #-----------------------------------------------------------------------------#
 # Plotting Kuresi
 #-----------------------------------------------------------------------------#

@@ -34,6 +34,8 @@ p <- add_argument(p, "--min_cells", short = "-mc", help = "Min number of cells p
 
 p <- add_argument(p, "--output_dir", short = "-od", help = "Output Directory for results and meta data", type = "character")
 
+p <- add_argument(p, "--report_file", short = "-rf", help = "Report File to generate", type = "character")
+
 argv <- parse_args(p)
 
 sample_name <- argv$sample_name
@@ -45,6 +47,7 @@ bin_size <- argv$bin_size
 min_features <- argv$min_features
 min_cells <- argv$min_cells
 output_dir <- argv$output_dir
+report_file <- argv$report_file
 
 source("scripts/utils/io.r")
 source("scripts/utils/utils.r")
@@ -76,23 +79,23 @@ coord <- aggregated_data$coords[aggregated_data$coords$barcodes %in% colnames(co
 #-----------------------------------------------------------------------------#
 # Get QC plots
 #-----------------------------------------------------------------------------#
-qc_1 <- view_feature_map(counts, coord)
-qc_2 <- view_count_map(counts, coord)
+qc_1 <- view_feature_map(counts, coord, bin_size = bin_size)
+qc_2 <- view_count_map(counts, coord, bin_size = bin_size)
 ggsave(file.path(output_dir, "feature_map.pdf"), plot = qc_1, width = 12, height = 12, units = "in")
 ggsave(file.path(output_dir, "count_map.pdf"), plot = qc_2, width = 12, height = 12, units = "in")
 
 #-----------------------------------------------------------------------------#
 # Get QC plots of only features of interest
 #-----------------------------------------------------------------------------#
-qc_3 <- view_feature_map(counts, coord, features)
-qc_4 <- view_count_map(counts, coord, features)
+qc_3 <- view_feature_map(counts, coord, features, bin_size = bin_size)
+qc_4 <- view_count_map(counts, coord, features, bin_size = bin_size)
 ggsave(file.path(output_dir, "feature_map_win_loose.pdf"), plot = qc_3, width = 12, height = 12, units = "in")
 ggsave(file.path(output_dir, "count_map_win_loose.pdf"), plot = qc_4, width = 12, height = 12, units = "in")
 #-----------------------------------------------------------------------------#
 # Export metrics
 #-----------------------------------------------------------------------------#
-mean_counts <- mean(colMeans(counts))
-mean_genes  <- mean(colMeans(counts > 0))
+mean_counts <- mean(colSums(counts))
+mean_genes  <- mean(colSums(counts > 0))
 # Write QC report
 report_text <- sprintf(
     "QC Report for %s\n%s\nMetrics:\n  Cells: %d\n  Genes: %d\n  Mean counts/cell: %.1f\n  Mean genes/cell: %.0f\n ",
@@ -104,7 +107,7 @@ report_text <- sprintf(
     mean_genes
 )
 
-writeLines(report_text, con = file.path(output_dir, "qc_report.txt"))
+writeLines(report_text, con = file.path(report_file))
 #-----------------------------------------------------------------------------#
 # Export data
 # To be updated with images later.

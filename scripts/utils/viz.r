@@ -4,7 +4,7 @@ library(RColorBrewer)
 
 
 
-view_feature_map <- function(counts, coord, features = NULL) {
+view_feature_map <- function(counts, coord, features = NULL, bin_size = 16) {
     if (!is.null(features)) {
         counts <- counts[rownames(counts) %in% features, ]
     }
@@ -13,14 +13,14 @@ view_feature_map <- function(counts, coord, features = NULL) {
     coord$feature_counts <- feature_count[locs]
     str(coord)
     g <- ggplot(coord, aes(x = x , y = y, col = feature_counts)) +
-         geom_point(size = 0.2, stroke = 0) +
+         geom_point(size = 0.03 * bin_size) +
          scale_color_distiller(palette = "Spectral") +
          theme_bw() +
          labs(title = "Features per Cell")
     return(g)
 }
 
-view_count_map <- function(counts, coord, features = NULL) {
+view_count_map <- function(counts, coord, features = NULL, bin_size = 16) {
     if (!is.null(features)) {
         counts <- counts[rownames(counts) %in% features, ]
     }
@@ -29,7 +29,7 @@ view_count_map <- function(counts, coord, features = NULL) {
     coord$cell_count <- cell_count[locs]
     str(coord)
     g <- ggplot(coord, aes(x = x , y = y, col = cell_count)) +
-         geom_point(size = 0.2, stroke = 0) +
+         geom_point(size = 0.03 * bin_size) +
          scale_color_distiller(palette = "Spectral") +
          theme_bw() +
          labs(title = "Total Counts per Cell")

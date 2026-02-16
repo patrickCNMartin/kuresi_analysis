@@ -41,6 +41,8 @@ p <- add_argument(p, "--distance", short = "-ds", help = "Territory pooling dist
 
 p <- add_argument(p, "--output_dir", short = "-od", help = "Output Directory for results and meta data", type = "character")
 
+p <- add_argument(p, "--report_file", short = "-rf", help = "Report File to generate", type = "character")
+
 p <- add_argument(p, "--cores", short = "-c", help = "Number of cores", type = "numeric")
 
 argv <- parse_args(p)
@@ -57,6 +59,7 @@ iter <- argv$iter
 col_resolution <- argv$col_resolution
 distance <- argv$distance
 output_dir <- argv$output_dir
+report_file <- argv$report_file
 cores <- argv$cores
 
 max_size <- 10000 * 1024^2
@@ -126,7 +129,7 @@ cat("Territory Pooling - Completed\n")
 # Plotting Vesalius
 #-----------------------------------------------------------------------------#
 img <- image_plot(vesalius)
-ter <- territory_plot(vesalius, cex_pt = 0.3)
+ter <- territory_plot(vesalius, cex_pt = 2)
 ggsave(file.path(output_dir, "vesalius_image_plot.pdf"), plot = img, width = 12, height = 12, units = "in")
 ggsave(file.path(output_dir, "vesalius_territory_plot.pdf"), plot = ter, width = 12, height = 12, units = "in")
 #-----------------------------------------------------------------------------#
@@ -145,7 +148,7 @@ report_text <- sprintf(
     isolated
 )
 
-writeLines(report_text, con = file.path(output_dir, "vesalius_report.txt"))
+writeLines(report_text, con = file.path(report_file))
 #-----------------------------------------------------------------------------#
 # Export and Save
 #-----------------------------------------------------------------------------#
