@@ -14,61 +14,69 @@ samples:
 # Input file mapping
 input_files:
   485_manual:
-    coordinates: "data/ovarian/485_manual/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/ovarian/485_manual/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/485_Cyt.tif"
-    scale      : "data/ovarian/485_manual/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/ovarian/485_manual/outs/binned_outputs/square_016um/spatial/tissue_positions.parquet"
+    counts     : "data/ovarian/485_manual/outs/binned_outputs/square_016um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/485_2.tif"
+    scale      : "data/ovarian/485_manual/outs/binned_outputs/square_016um/spatial/scalefactors_json.json"
+    cancer_type: "ovary"
   27495_manual:
-    coordinates: "data/ovarian/27495_manual/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/ovarian/27495_manual/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/27495_Cyt.tif"
-    scale      : "data/ovarian/27495_manual/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/ovarian/27495_manual/outs/binned_outputs/square_016um/spatial/tissue_positions.parquet"
+    counts     : "data/ovarian/27495_manual/outs/binned_outputs/square_016um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/27495.tif"
+    scale      : "data/ovarian/27495_manual/outs/binned_outputs/square_016um/spatial/scalefactors_json.json"
+    cancer_type: "ovary"
   31491_manual:
-    coordinates: "data/ovarian/31491_manual/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/ovarian/31491_manual/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/31491_Cyt.tif"
-    scale      : "data/ovarian/31491_manual/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/ovarian/31491_manual/outs/binned_outputs/square_016um/spatial/tissue_positions.parquet"
+    counts     : "data/ovarian/31491_manual/outs/binned_outputs/square_016um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/31491.tif"
+    scale      : "data/ovarian/31491_manual/outs/binned_outputs/square_016um/spatial/scalefactors_json.json"
+    cancer_type: "ovary"
   PC1:
-    coordinates: "data/pancreatic/PC1/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/pancreatic/PC1/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/PC1_Cyt.tif"
-    scale      : "data/pancreatic/PC1/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/pancreatic/PC1/outs/binned_outputs/square_016um/spatial/tissue_positions.parquet"
+    counts     : "data/pancreatic/PC1/outs/binned_outputs/square_016um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/PC1.tif"
+    scale      : "data/pancreatic/PC1/outs/binned_outputs/square_016um/spatial/scalefactors_json.json"
+    cancer_type: "pancreas"
   PC2:
-    coordinates: "data/pancreatic/PC2/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/pancreatic/PC2/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/PC2_Cyt.tif"
-    scale      : "data/pancreatic/PC2/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/pancreatic/PC2/outs/binned_outputs/square_016um/spatial/tissue_positions.parquet"
+    counts     : "data/pancreatic/PC2/outs/binned_outputs/square_016um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/PC2.tif"
+    scale      : "data/pancreatic/PC2/outs/binned_outputs/square_016um/spatial/scalefactors_json.json"
+    cancer_type: "pancreas"
   PC3:
-    coordinates: "data/pancreatic/PC3/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/pancreatic/PC3/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/PC2_Cyt.tif"
-    scale      : "data/pancreatic/PC3/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/pancreatic/PC3/outs/binned_outputs/square_016um/spatial/tissue_positions.parquet"
+    counts     : "data/pancreatic/PC3/outs/binned_outputs/square_016um/filtered_feature_bc_matrix.h5"
+    image      : "data/images/uploads/PC3.tif"
+    scale      : "data/pancreatic/PC3/outs/binned_outputs/square_016um/spatial/scalefactors_json.json"
+    cancer_type: "pancreas"
   
 # QC parameters
 qc:
-  min_cells    : 100
-  min_features : 100
-  bin_size     : 32
+  min_cells       : 100
+  min_features    : 100
+  bin_size        : 4
+  count_threshold : 0.25
 
 
 # Vesalius parameters
 vesalius:
   feature_set   : true
-  resolution    : 1
+  resolution    : 0.3
   dim_reduc     : "PCA"
   dims          : 30
   equalize      : 2.5
-  sigma         : 2
+  sigma         : 3
   iter          : 20
-  col_resolution: 20 
-  distance      : 0.01
+  col_resolution: 10
+  distance      : 0.1
 
 
 # Kuresi parameters
 kuresi:
   method: "mean_ratio"
-  scale : true
-  center: true
+  scale : false
+  center: false
+  rank  : true
  
 
  
@@ -85,9 +93,9 @@ resources:
     time_min: 120       
     cpus: 1           
   vesalius:
-    mem_mb: 80000      
+    mem_mb: 250000
     time_min: 480      
-    cpus: 4           
+    cpus: 1          
   kuresi:
     mem_mb: 80000      
     time_min: 120      

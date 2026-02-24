@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 # cheat libs because the hpc configs sucks and I don't have time for anything else
 library(ggplot2)
+library(magick)
 #-----------------------------------------------------------------------------#
 # LIBRARIES
 #-----------------------------------------------------------------------------#
@@ -21,6 +22,8 @@ p <- add_argument(p, "--sample_name", short = "-sm", help = "Sample Name", type 
 
 p <- add_argument(p, "--input_rds", short = "-i", help = "Path to rds", type = "character")
 
+p <- add_argument(p, "--image", short = "-im", help = "Path to image", type = "character")
+
 p <- add_argument(p, "--feature_set", short = "-fs", help = "Use full feature set", type = "logical")
 
 p <- add_argument(p, "--resolution", short = "-r", help = "Image Resolution", type = "numeric")
@@ -39,6 +42,8 @@ p <- add_argument(p, "--col_resolution", short = "-cr", help = "Number of color 
 
 p <- add_argument(p, "--distance", short = "-ds", help = "Territory pooling distance", type = "numeric")
 
+p <- add_argument(p, "--bin_size", short = "-b", help = "bin size", type = "numeric")
+
 p <- add_argument(p, "--output_dir", short = "-od", help = "Output Directory for results and meta data", type = "character")
 
 p <- add_argument(p, "--report_file", short = "-rf", help = "Report File to generate", type = "character")
@@ -49,6 +54,7 @@ argv <- parse_args(p)
 
 sample_name <- argv$sample_name
 rds <- argv$input_rds
+image <- argv$image
 feature_set <- argv$feature_set
 resolution <- argv$resolution
 dim_reduc <- argv$dim_reduc
@@ -58,13 +64,17 @@ sigma <- argv$sigma
 iter <- argv$iter
 col_resolution <- argv$col_resolution
 distance <- argv$distance
+bin_size <- argv$bin_size
 output_dir <- argv$output_dir
 report_file <- argv$report_file
 cores <- argv$cores
 
-max_size <- 10000 * 1024^2
+max_size <- 100000 * 1024^2
 options(future.globals.maxSize = max_size)
 plan(multicore, workers = cores)
+
+source("scripts/utils/utils.r")
+source("scripts/utils/viz.r")
 #-----------------------------------------------------------------------------#
 # INPUT
 #-----------------------------------------------------------------------------#
@@ -79,17 +89,21 @@ if (feature_set) {
 }
 
 data <- readRDS(rds)
+image <- magick::image_read(image)
 
 coordinates <- as.data.frame(data$coord)
+coordinates <- coordinates[, c("barcodes","pxl_col_in_fullres","pxl_row_in_fullres")]
+colnames(coordinates) <- c("barcodes","x","y")
 cat("Data Loading - Completed\n")
 #-----------------------------------------------------------------------------#
 # Vesalius Territories
+# Not adding images since they will be handled independantly 
 #-----------------------------------------------------------------------------#
 vesalius <- build_vesalius_assay(coordinates,
                                  data$counts,
-                                 data$image,
+                                 image = NULL,
                                  assay = sample_name,
-                                 scale = data$scale,
+                                 scale = "auto",
                                  verbose = FALSE)
 cat("Object Build - Completed\n")
 
@@ -100,6 +114,7 @@ vesalius <- generate_embeddings(vesalius,
                                 features = features,
                                 verbose = FALSE)
 cat("Generate Embeddings - Completed\n")
+
 
 vesalius <- equalize_image(vesalius,
                            sleft = eq,
@@ -129,9 +144,10 @@ cat("Territory Pooling - Completed\n")
 # Plotting Vesalius
 #-----------------------------------------------------------------------------#
 img <- image_plot(vesalius)
-ter <- territory_plot(vesalius, cex_pt = 2)
-ggsave(file.path(output_dir, "vesalius_image_plot.pdf"), plot = img, width = 12, height = 12, units = "in")
-ggsave(file.path(output_dir, "vesalius_territory_plot.pdf"), plot = ter, width = 12, height = 12, units = "in")
+score <- get_orig_coordinates(vesalius)
+ter <- view_scores(score, img = image, bin_size)
+ggsave(file.path(output_dir, "vesalius_image_plot.tiff"), plot = img, width = 8, height = 8, units = "in")
+ggsave(file.path(output_dir, "vesalius_territory_plot.tiff"), plot = ter, width = 8, height = 8, units = "in")
 #-----------------------------------------------------------------------------#
 # Export Metrics
 #-----------------------------------------------------------------------------#

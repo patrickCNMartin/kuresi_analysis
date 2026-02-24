@@ -5,6 +5,7 @@
 library(future, lib.loc = "lib_cache/")
 library(future.apply, lib.loc = "lib_cache/")
 library(ggplot2)
+library(magick)
 library(Kuresi, lib.loc = "lib_cache/")
 library(ggpubr, lib.loc = "lib_cache/")
 library(vesalius, lib.loc = "lib_cache/")
@@ -26,6 +27,10 @@ p <- add_argument(p, "--image", short = "-im", help = "Path to H&E image", type 
 
 p <- add_argument(p, "--scale", short = "-sc", help = "Path to scale factors", type = "character")
 
+p <- add_argument(p, "--cancer_type", short = "-ct", help = "Cancer type", type = "character")
+
+p <- add_argument(p, "--count_threshold", short = "-cot", help = "Gene Count threshold", type = "numeric")
+
 p <- add_argument(p, "--bin_size", short = "-r", help = "Number of bins (assuming 2um base data)", type = "numeric")
 
 p <- add_argument(p, "--min_features", short = "-mf", help = "Min Number of Features per cells", type = "numeric")
@@ -43,6 +48,8 @@ counts <- argv$counts
 coordinates <- argv$coordinates
 image <- argv$image
 scale <- argv$scale
+cancer_type <- argv$cancer_type
+count_threshold <- argv$count_threshold
 bin_size <- argv$bin_size
 min_features <- argv$min_features
 min_cells <- argv$min_cells
@@ -57,40 +64,80 @@ source("scripts/utils/viz.r")
 #-----------------------------------------------------------------------------#
 cat("QC Start \n")
 data <- load_visiumhd(counts, coordinates, image , scale)
+# Win lose sets
 gene_sets <- win_lose_genes()
 win_genes <- gene_sets$win
 lose_genes <- gene_sets$lose
 features <- c(win_genes, lose_genes)
+
+# cancer marker set
+cancer <- cancer_maker_list(cancer_type)
+
+
 cat("Data Loading - Completed\n")
 #-----------------------------------------------------------------------------#
 # Binning data
 #-----------------------------------------------------------------------------#
-coord <- data$coord[,c("barcode","array_col","array_row")]
-colnames(coord) <- c("barcodes","x","y")
-aggregated_data <- bin_spatial_data(data$counts, coord, bin_size = bin_size)
+aggregated_data <- bin_spatial_data(data$counts, data$coord, bin_size = bin_size)
 
 #-----------------------------------------------------------------------------#
 # Count Filtering
 #-----------------------------------------------------------------------------#
-counts <- filter_counts(aggregated_data$counts, min_features, min_cells)
+cancer_counts <- filter_counts(aggregated_data$counts,
+                        min_features,
+                        min_cells,
+                        cancer,
+                        count_threshold,
+                        return_cancer = TRUE)
+cancer_coord <- aggregated_data$coords[aggregated_data$coords$barcodes %in% colnames(cancer_counts), ]
+counts <- filter_counts(aggregated_data$counts,
+                        min_features,
+                        min_cells,
+                        cancer,
+                        count_threshold)
 coord <- aggregated_data$coords[aggregated_data$coords$barcodes %in% colnames(counts), ]
-
-
+#-----------------------------------------------------------------------------#
+# Get Cancer cells
+#-----------------------------------------------------------------------------#
+qc_1 <- view_feature_map(cancer_counts,
+                         cancer_coord,
+                         img = data$image,
+                         bin_size = bin_size)
+qc_2 <- view_count_map(counts,
+                       coord,
+                       img = data$image,
+                       bin_size = bin_size)
+ggsave(file.path(output_dir, "cancer_feature_map.tiff"), plot = qc_1, width = 8, height = 8, units = "in")
+ggsave(file.path(output_dir, "cancer_count_map.tiff"), plot = qc_2, width = 8, height = 8, units = "in")
 #-----------------------------------------------------------------------------#
 # Get QC plots
 #-----------------------------------------------------------------------------#
-qc_1 <- view_feature_map(counts, coord, bin_size = bin_size)
-qc_2 <- view_count_map(counts, coord, bin_size = bin_size)
-ggsave(file.path(output_dir, "feature_map.pdf"), plot = qc_1, width = 12, height = 12, units = "in")
-ggsave(file.path(output_dir, "count_map.pdf"), plot = qc_2, width = 12, height = 12, units = "in")
+qc_3 <- view_feature_map(counts,
+                         coord,
+                         img = data$image,
+                         bin_size = bin_size)
+qc_4 <- view_count_map(counts,
+                       coord,
+                       img = data$image,
+                       bin_size = bin_size)
+ggsave(file.path(output_dir, "feature_map.tiff"), plot = qc_3, width = 12, height = 12, units = "in")
+ggsave(file.path(output_dir, "count_map.tiff"), plot = qc_4, width = 12, height = 12, units = "in")
 
 #-----------------------------------------------------------------------------#
 # Get QC plots of only features of interest
 #-----------------------------------------------------------------------------#
-qc_3 <- view_feature_map(counts, coord, features, bin_size = bin_size)
-qc_4 <- view_count_map(counts, coord, features, bin_size = bin_size)
-ggsave(file.path(output_dir, "feature_map_win_loose.pdf"), plot = qc_3, width = 12, height = 12, units = "in")
-ggsave(file.path(output_dir, "count_map_win_loose.pdf"), plot = qc_4, width = 12, height = 12, units = "in")
+qc_5 <- view_feature_map(counts,
+                         coord,
+                         features,
+                         img = data$image,
+                         bin_size = bin_size)
+qc_6 <- view_count_map(counts,
+                       coord,
+                       features,
+                       img = data$image,
+                       bin_size = bin_size)
+ggsave(file.path(output_dir, "feature_map_win_loose.tiff"), plot = qc_5, width = 8, height = 8, units = "in")
+ggsave(file.path(output_dir, "count_map_win_loose.tiff"), plot = qc_6, width = 8, height = 8, units = "in")
 #-----------------------------------------------------------------------------#
 # Export metrics
 #-----------------------------------------------------------------------------#
@@ -110,7 +157,8 @@ report_text <- sprintf(
 writeLines(report_text, con = file.path(report_file))
 #-----------------------------------------------------------------------------#
 # Export data
-# To be updated with images later.
+# Not exporting image since magick pointers don't persist across sessions
+# Note: not scale here either since the scale factors here are pointless
 #-----------------------------------------------------------------------------#
-out <- list("counts" = counts , "coord" = coord, "image" = NULL, "scale" = "auto")
+out <- list("counts" = counts , "coord" = coord)
 saveRDS(out, file = file.path(output_dir,"qc_data.rds"))

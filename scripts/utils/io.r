@@ -1,6 +1,8 @@
 library(arrow, lib.loc = "lib_cache/")
 library(Seurat, lib.loc = "lib_cache/")
 library(imager, lib.loc = "lib_cache/")
+library(jsonlite, lib.loc = "lib_cache/")
+#library(magick, lib.loc = "lib_cache/")
 
 
 
@@ -29,8 +31,8 @@ load_visiumhd <- function(
         stop("Please use h5 files")
     }
     # Image - for now assume Null
-    image <- NULL
-    scale <- "auto"
+    image <- magick::image_read(image)
+    scale <- fromJSON(scale_factor)$tissue_hires_scalef
     # Downsample for testing purposes
     if (!is.null(downsample) && is(downsample, "numeric")) {
         barcodes <- sort(sample(coordinates$barcodes, downsample, replace = FALSE))

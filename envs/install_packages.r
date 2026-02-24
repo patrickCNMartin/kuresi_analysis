@@ -21,7 +21,11 @@ install.packages("future",repo = "https://cloud.r-project.org", lib = "lib_cache
 install.packages("future.apply",repo = "https://cloud.r-project.org", lib = "lib_cache/")
 install.packages("data.table",repo = "https://cloud.r-project.org", lib = "lib_cache/")
 install.packages("Matrix",repo = "https://cloud.r-project.org", lib = "lib_cache/")
+install.packages("magick",repo = "https://cloud.r-project.org", lib = "lib_cache/")
+install.packages("jsonlite",repo = "https://cloud.r-project.org", lib = "lib_cache/")
+install.packages("ggnewscale",repo = "https://cloud.r-project.org", lib = "lib_cache/")
+install.packages("matrixStats",repo = "https://cloud.r-project.org", lib = "lib_cache/")
 BiocManager::install("rhdf5", lib = "lib_cache/")
 
 remotes::install_github("WonLab-CS/Vesalius@4c0b03c", lib = "lib_cache/") 
-remotes::install_github("patrickCNMartin/Kuresi@fabfcbc", lib = "lib_cache/")
+remotes::install_github("patrickCNMartin/Kuresi@b682b8a", lib = "lib_cache/")
