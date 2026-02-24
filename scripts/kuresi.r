@@ -61,6 +61,7 @@ if (method == "ELO") {
                                           method = method,
                                           scale = scale,
                                           center = center,
+                                          rank = FALSE,
                                           add_name = method,
                                           verbose = FALSE)
 }
