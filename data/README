@@ -1,3 +1,3 @@
-Place holder for data directory.
+All data is to be placed in this directory. 
 
-Will add a directory structure for data download purposes
+The config file shows the path to files we used. Update the path to files to reflect your own directory structure. 
