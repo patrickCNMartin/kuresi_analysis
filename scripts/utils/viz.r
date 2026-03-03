@@ -64,8 +64,9 @@ view_feature_map <- function(counts,
     geom_point(
       data = coord,
       aes(x = x, y = y, color = feature_counts),
-      size = 0.05 * bin_size,
-      alpha = 0.8
+      size = 0.035 * bin_size,
+      alpha = 0.7,
+      stroke = 0
     ) +
     scale_color_distiller(palette = "Spectral") +
     theme_bw() +
@@ -126,8 +127,9 @@ view_count_map <- function(counts,
     g <- g +
         geom_point(data = coord,
                    aes(x = x, y = y, col = cell_count),
-                   size = 0.05 * bin_size,
-                    alpha = 0.8) +
+                   size = 0.035 * bin_size,
+                    alpha = 0.7,
+                    stroke = 0) +
         scale_color_distiller(palette = "Spectral") +
         theme_bw() +
         coord_fixed() +
@@ -181,13 +183,14 @@ view_scores <- function(coord,
     geom_point(
       data = coord,
       aes(x = x, y = y, color = score),
-      size = 0.05 * bin_size,
-      alpha = 0.8
+      size = 0.035 * bin_size,
+      alpha = 0.7,
+      stroke = 0
     ) +
     theme_bw() +
     coord_fixed() +
     guides(colour = guide_legend(
-        override.aes = list(size = bin_size * 0.8)))
+        override.aes = list(size = 5)))
   if (palette == "vesalius") {
     g <- g + scale_color_manual(values = get_ves_pal(coord))+
         labs(title = "Competition Territories", color = "Territory", x = "x", y = "y")
@@ -223,13 +226,13 @@ get_ves_pal <- function(score) {
 
 get_kur_pal <- function(score) {
   ter_col <- length(levels(score$score))
-  base_colours <- c(
+  base_colours <- rev(c(
     "#850101",
     "#cd8878",
     "#f1f1b1",
     "#9CAAC4",
     "#1F3B70"
-  )
+  ))
   if (ter_col < length(base_colours)) {
     ter_pal <- colorRampPalette(base_colours[seq(1, ter_col)])
   } else {

@@ -110,6 +110,7 @@ set_original_coordinates <- function(vesalius_assay, score) {
     score$x <- orig_coord$x_orig[in_trial]
     score$y <- orig_coord$y_orig[in_trial]
     score <- score[,c("x","y","score")]
+    score$score <- signif(score$score, digits = 4)
     return(score)
 
 }

@@ -70,6 +70,7 @@ if (method == "ELO") {
                                           scale = scale,
                                           center = center,
                                           rank = rank,
+                                          raw = FALSE,
                                           add_name = method,
                                           verbose = FALSE)
 }
@@ -100,7 +101,7 @@ writeLines(report_text, con = file.path(report_file))
 if (method == "ELO") {
     # PLACE HOLDER
 } else {
-    kuresi_score <- kuresi_score[,c("x","y", method)]
+    kuresi_score <- kuresi_score[,c("barcodes","x","y", method)]
     colnames(kuresi_score) <- gsub(method,"score",colnames(kuresi_score))
 }
 kuresi_score_orig <- set_original_coordinates(vesalius,kuresi_score)

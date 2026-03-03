@@ -28,4 +28,4 @@ install.packages("matrixStats",repo = "https://cloud.r-project.org", lib = "lib_
 BiocManager::install("rhdf5", lib = "lib_cache/")
 
 remotes::install_github("WonLab-CS/Vesalius@4c0b03c", lib = "lib_cache/") 
-remotes::install_github("patrickCNMartin/Kuresi@b682b8a", lib = "lib_cache/")
+remotes::install_github("patrickCNMartin/Kuresi@07e12fa", lib = "lib_cache/")
