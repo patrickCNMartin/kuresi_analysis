@@ -17,6 +17,11 @@ KURESI_DIR = "kuresi"
 PLOTS_DIR = "plots"
 RESULTS_BASE = "results"
 
+# help function
+def get_param(wildcards, param, rule):
+    sample_type = config["input_files"][wildcards.sample]["type"]
+    return config[rule][sample_type][param]
+
 # Create a rule to define all final outputs
 rule all:
     input:
@@ -36,19 +41,26 @@ rule qc:
         counts = lambda wildcards: config["input_files"][wildcards.sample]["counts"],
         scale = lambda wildcards: config["input_files"][wildcards.sample]["scale"],
         image = lambda wildcards: config["input_files"][wildcards.sample]["image"],
+        
     output:
         qc_rds = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/qc_data.rds",
-        qc_1 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/feature_map.pdf",
-        qc_2 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/count_map.pdf",
-        qc_3 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/feature_map_win_loose.pdf",
-        qc_4 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/count_map_win_loose.pdf",
+        qc_1 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/cancer_feature_map.tiff",
+        qc_2 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/cancer_count_map.tiff",
+        qc_3 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/feature_map.tiff",
+        qc_4 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/count_map.tiff",
+        qc_5 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/feature_map_win_loose.tiff",
+        qc_6 = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/count_map_win_loose.tiff",
         qc_report = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}/qc_report.txt",
     params:
         sample_name = "{sample}",
         output_dir = f"{RESULTS_BASE}/{{sample}}/{QC_DIR}",
-        bin_size = config["qc"]["bin_size"],
-        min_cells = config["qc"]["min_cells"],
-        min_features = config["qc"]["min_features"]
+        bin_size = lambda wildcards: get_param(wildcards, "bin_size","qc"),
+        cancer_type = lambda wildcards: config["input_files"][wildcards.sample]["cancer_type"],
+        data_type = lambda wildcards: config["input_files"][wildcards.sample]["type"],
+        count_threshold = lambda wildcards: get_param(wildcards, "count_threshold","qc"),
+        min_cells = lambda wildcards: get_param(wildcards, "min_cells","qc"),
+        min_features = lambda wildcards: get_param(wildcards, "min_features","qc"),
+        downsample_pixels = lambda wildcards: get_param(wildcards, "downsample_pixels","qc"),
     threads: config["resources"]["qc"]["cpus"]
     resources:
         mem_mb = config["resources"]["qc"]["mem_mb"],
@@ -66,10 +78,15 @@ rule qc:
             --sample_name {params.sample_name} \
             --coordinates {input.coordinates} \
             --counts {input.counts} \
+            --image {input.image} \
             --scale {input.scale} \
+            --cancer_type {params.cancer_type}\
+            --data_type {params.data_type}\
+            --count_threshold {params.count_threshold} \
             --min_cells {params.min_cells} \
             --min_features {params.min_features} \
             --bin_size {params.bin_size} \
+            --downsample_pixels {params.downsample_pixels}\
             --output_dir {params.output_dir} \
             --report_file {output.qc_report} \
             2>&1 | tee {log}
@@ -82,23 +99,26 @@ rule qc:
 rule vesalius:
     input:
         qc_data = rules.qc.output.qc_rds,
+        image = lambda wildcards: config["input_files"][wildcards.sample]["image"],
     output:
         vesalius_rds = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_data.rds",
-        vesalius_territory = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_territory_plot.pdf",
-        vesalius_image = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_image_plot.pdf",
+        vesalius_territory = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_territory_plot.tiff",
+        vesalius_image = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_image_plot.tiff",
         vesalius_report = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}/vesalius_report.txt",
     params:
         sample_name = "{sample}",
         output_dir = f"{RESULTS_BASE}/{{sample}}/{VESALIUS_DIR}",
-        feature_set = config["vesalius"]["feature_set"],
-        resolution = config["vesalius"]["resolution"],
-        dim_reduc = config["vesalius"]["dim_reduc"],
-        dims = config["vesalius"]["dims"],
-        equalize = config["vesalius"]["equalize"],
-        sigma = config["vesalius"]["sigma"],
-        iter = config["vesalius"]["iter"],
-        col_resolution = config["vesalius"]["col_resolution"],
-        distance = config["vesalius"]["distance"],
+        feature_set = lambda wildcards: get_param(wildcards, "feature_set","vesalius"),
+        resolution = lambda wildcards: get_param(wildcards, "resolution","vesalius"),
+        dim_reduc = lambda wildcards: get_param(wildcards, "dim_reduc","vesalius"),
+        dims = lambda wildcards: get_param(wildcards, "dims","vesalius"),
+        equalize = lambda wildcards: get_param(wildcards, "equalize","vesalius"),
+        sigma = lambda wildcards: get_param(wildcards, "sigma","vesalius"),
+        iter = lambda wildcards: get_param(wildcards, "iter","vesalius"),
+        col_resolution = lambda wildcards: get_param(wildcards, "col_resolution","vesalius"),
+        distance = lambda wildcards: get_param(wildcards, "distance","vesalius"),
+        bin_size = lambda wildcards: get_param(wildcards, "bin_size","qc"),
+        downsample_pixels = lambda wildcards: get_param(wildcards, "downsample_pixels","qc"),
     threads: config["resources"]["vesalius"]["cpus"]
     resources:
         mem_mb = config["resources"]["vesalius"]["mem_mb"],
@@ -115,6 +135,7 @@ rule vesalius:
         Rscript scripts/vesalius.r \
             --sample_name {params.sample_name} \
             --input_rds {input.qc_data} \
+            --image {input.image} \
             --feature_set {params.feature_set} \
             --resolution {params.resolution} \
             --dim_reduc {params.dim_reduc} \
@@ -124,6 +145,8 @@ rule vesalius:
             --iter {params.iter} \
             --col_resolution {params.col_resolution} \
             --distance {params.distance} \
+            --bin_size {params.bin_size} \
+            --downsample_pixels {params.downsample_pixels}\
             --output_dir {params.output_dir} \
             --report_file {output.vesalius_report} \
             --cores {threads} \
@@ -137,9 +160,10 @@ rule vesalius:
 rule kuresi:
     input:
         vesalius_data = rules.vesalius.output.vesalius_rds,
+        image = lambda wildcards: config["input_files"][wildcards.sample]["image"],
     output:
         kuresi_rds = f"{RESULTS_BASE}/{{sample}}/{KURESI_DIR}/kuresi_competition_scores.rds",
-        kuresi_plot = f"{RESULTS_BASE}/{{sample}}/{KURESI_DIR}/kuresi_score_plot.pdf",
+        kuresi_plot = f"{RESULTS_BASE}/{{sample}}/{KURESI_DIR}/kuresi_score_plot.tiff",
         kuresi_report = f"{RESULTS_BASE}/{{sample}}/{KURESI_DIR}/kuresi_report.txt",
     params:
         sample_name = "{sample}",
@@ -147,6 +171,9 @@ rule kuresi:
         method = config["kuresi"]["method"],
         scale = config["kuresi"]["scale"],
         center = config["kuresi"]["center"],
+        rank = config["kuresi"]["rank"],
+        bin_size = lambda wildcards: get_param(wildcards, "bin_size","qc"),
+        downsample_pixels = lambda wildcards: get_param(wildcards, "downsample_pixels","qc"),
     threads: config["resources"]["kuresi"]["cpus"]
     resources:
         mem_mb = config["resources"]["kuresi"]["mem_mb"],
@@ -163,9 +190,13 @@ rule kuresi:
         Rscript scripts/kuresi.r \
             --sample_name {params.sample_name} \
             --input_rds {input.vesalius_data} \
+            --image {input.image} \
             --method {params.method} \
             --scale {params.scale} \
             --center {params.center} \
+            --rank {params.rank} \
+            --bin_size {params.bin_size} \
+            --downsample_pixels {params.downsample_pixels}\
             --output_dir {params.output_dir} \
             --report_file {output.kuresi_report} \
             2>&1 | tee {log}

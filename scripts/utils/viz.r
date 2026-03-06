@@ -31,10 +31,13 @@ view_feature_map <- function(counts,
     img_h <- as.numeric(info$height)
     
     # Downsample for memory-safe rendering only
-    display_scale <- min(1, max_display_px / max(img_w, img_h))
-    if (display_scale < 1) {
-      img <- image_scale(img, paste0(round(img_w * display_scale), "x"))
+    if (max_display_px >0) {
+        display_scale <- min(1, max_display_px / max(img_w, img_h))
+        if (display_scale < 1) {
+            img <- image_scale(img, paste0(round(img_w * display_scale), "x"))
+        }
     }
+    
     
     img_grob <- grid::rasterGrob(as.raster(img),
                                  interpolate = TRUE,
@@ -98,9 +101,12 @@ view_count_map <- function(counts,
         img_w <- as.numeric(info$width)
         img_h <- as.numeric(info$height)
         
-        display_scale <- min(1, max_display_px / max(img_w, img_h))
-        if (display_scale < 1) {
-            img <- image_scale(img, paste0(round(img_w * display_scale), "x"))
+        # Downsample for memory-safe rendering only
+        if (max_display_px >0) {
+            display_scale <- min(1, max_display_px / max(img_w, img_h))
+            if (display_scale < 1) {
+                img <- image_scale(img, paste0(round(img_w * display_scale), "x"))
+            }
         }
         
         img_grob <- grid::rasterGrob(as.raster(img),
@@ -154,9 +160,11 @@ view_scores <- function(coord,
     img_h <- as.numeric(info$height)
     
     # Downsample for memory-safe rendering only
-    display_scale <- min(1, max_display_px / max(img_w, img_h))
-    if (display_scale < 1) {
-      img <- image_scale(img, paste0(round(img_w * display_scale), "x"))
+    if (max_display_px > 0) {
+        display_scale <- min(1, max_display_px / max(img_w, img_h))
+        if (display_scale < 1) {
+            img <- image_scale(img, paste0(round(img_w * display_scale), "x"))
+        }
     }
     
     img_grob <- grid::rasterGrob(as.raster(img),
@@ -196,7 +204,7 @@ view_scores <- function(coord,
         labs(title = "Competition Territories", color = "Territory", x = "x", y = "y")
   } else if (palette == "kuresi") {
     g <- g + scale_color_manual(values = get_kur_pal(coord))+
-        labs(title = "Competition Territories", color = "Rank", x = "x", y = "y")
+        labs(title = "Competition Territories", color = "Score", x = "x", y = "y")
   } else {
     stop("Unknown palette")
   }

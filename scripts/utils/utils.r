@@ -29,7 +29,22 @@ filter_counts <- function(counts,
 }
 
 
-bin_spatial_data <- function(counts, coordinates, bin_size = 16) {
+bin_spatial_data <- function(counts,
+                             coordinates,
+                             bin_size = 16,
+                             scale_factor = NULL) {
+
+  if (bin_size == 0){
+    if (is.null(scale_factor)){
+        stop("Oh no... that's not a scale factor")
+    }
+    coordinates$pxl_row_in_fullres <- coordinates$pxl_row_in_fullres * scale_factor
+    coordinates$pxl_col_in_fullres <- coordinates$pxl_col_in_fullres * scale_factor
+    return(list(
+        counts = counts,
+        coords = coordinates
+  ))
+  }
   # 1. Align data: Ensure coordinates match the matrix columns
   # Using 'barcode' (singular) as per your tibble structure
   dt <- as.data.table(coordinates)

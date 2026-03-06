@@ -2,6 +2,7 @@ library(arrow, lib.loc = "lib_cache/")
 library(Seurat, lib.loc = "lib_cache/")
 library(imager, lib.loc = "lib_cache/")
 library(jsonlite, lib.loc = "lib_cache/")
+library(Matrix, lib.loc = "lib_cache/")
 #library(magick, lib.loc = "lib_cache/")
 
 
@@ -39,6 +40,58 @@ load_visiumhd <- function(
         coordinates <- coordinates[coordinates$barcodes %in% barcodes, ]
         counts <- counts[, colnames(counts) %in% barcodes]
     }
+    return(list("counts" = counts,
+                "coordinates" = coordinates,
+                "image" = image,
+                "scale" = scale))
+}
+
+
+
+load_visium <- function(
+    counts,
+    coordinates,
+    image,
+    scale_factor)
+{
+    # Coordinate loading
+    if (grepl("csv", coordinates)) {
+        coordinates <- read.csv(coordinates, header = FALSE)
+        colnames(coordinates) <- c("barcodes","in_tissue", "array_row" ,"array_col",
+                                    "pxl_row_in_fullres",
+                                    "pxl_col_in_fullres" )
+        coordinates <- coordinates[coordinates$in_tissue == 1,]
+        coordinates <- coordinates[order(coordinates$barcode, decreasing = FALSE),]
+    } else {
+        stop("Make sure tissue positions are csv files ")
+    }
+    # Counts
+    if (endsWith( counts,"h5")) {
+        counts <- Seurat::Read10X_h5(counts)
+        counts <- counts[,order(colnames(counts), decreasing = FALSE)]
+    } else if (file.info(counts)$isdir) {
+        mtx <- list.files(counts, pattern = ".mtx.gz", full.names = TRUE)
+        features <- list.files(counts, pattern = "features.tsv.gz", full.names = TRUE)
+        barcodes <- list.files(counts, pattern = "barcodes.tsv.gz", full.names = TRUE)
+        feat <- read.table(features)[, 2]
+        bar <- read.table(barcodes)[, 1]
+        counts <- Matrix::readMM(mtx)
+        counts <- as(counts, "CsparseMatrix")
+        rownames(counts) <- feat
+        colnames(counts) <- bar
+        counts <- counts[,order(colnames(counts), decreasing = FALSE)]
+    }
+    if (grepl("lowres", image)){
+        scale <- fromJSON(scale_factor)$tissue_lowres_scalef
+    } else if (grepl("hires", image)) {
+        scale <- fromJSON(scale_factor)$tissue_hires_scalef
+    } else {
+        stop("Unknown image size")
+    }
+    image <- magick::image_read(image)
+    
+    
+    
     return(list("counts" = counts,
                 "coordinates" = coordinates,
                 "image" = image,

@@ -2,6 +2,8 @@
 project_name: "Visium HD - Cancer Territories"
 data_dir: "data/"
 
+
+
 # Sample definitions - can be filenames or identifiers
 samples:
   - 485_manual
@@ -10,74 +12,117 @@ samples:
   - PC1
   - PC2
   - PC3
+  - Visium_Ovary
+  - Visium_Pancreas
 
 # Input file mapping
 input_files:
   485_manual:
-    coordinates: "data/ovarian/485_manual/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/ovarian/485_manual/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/485_2.tif"
-    scale      : "data/ovarian/485_manual/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/spatial/485_manual/tissue_positions.parquet"
+    counts     : "data/spatial/485_manual/filtered_feature_bc_matrix.h5"
+    image      : "data/spatial/485_manual/485_2.tif"
+    scale      : "data/spatial/485_manual/scalefactors_json.json"
     cancer_type: "ovary"
+    type       : "HD"
   27495_manual:
-    coordinates: "data/ovarian/27495_manual/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/ovarian/27495_manual/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/27495.tif"
-    scale      : "data/ovarian/27495_manual/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/spatial/27495_manual/tissue_positions.parquet"
+    counts     : "data/spatial/27495_manual/filtered_feature_bc_matrix.h5"
+    image      : "data/spatial/27495_manual/27495.tif"
+    scale      : "data/spatial/27495_manual/scalefactors_json.json"
     cancer_type: "ovary"
+    type       : "HD"
   31491_manual:
-    coordinates: "data/ovarian/31491_manual/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/ovarian/31491_manual/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/31491.tif"
-    scale      : "data/ovarian/31491_manual/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/spatial/31491_manual/tissue_positions.parquet"
+    counts     : "data/spatial/31491_manual/filtered_feature_bc_matrix.h5"
+    image      : "data/spatial/31491_manual/31491.tif"
+    scale      : "data/spatial/31491_manual/scalefactors_json.json"
     cancer_type: "ovary"
+    type       : "HD"
   PC1:
-    coordinates: "data/pancreatic/PC1/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/pancreatic/PC1/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/PC1.tif"
-    scale      : "data/pancreatic/PC1/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/spatial/PC1/tissue_positions.parquet"
+    counts     : "data/spatial/PC1/filtered_feature_bc_matrix.h5"
+    image      : "data/spatial/PC1/PC1.tif"
+    scale      : "data/spatial/PC1/scalefactors_json.json"
     cancer_type: "pancreas"
+    type       : "HD"
   PC2:
-    coordinates: "data/pancreatic/PC2/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/pancreatic/PC2/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/PC2.tif"
-    scale      : "data/pancreatic/PC2/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/spatial/PC2/tissue_positions.parquet"
+    counts     : "data/spatial/PC2/filtered_feature_bc_matrix.h5"
+    image      : "data/spatial/PC2/PC2.tif"
+    scale      : "data/spatial/PC2/scalefactors_json.json"
     cancer_type: "pancreas"
+    type       : "HD"
   PC3:
-    coordinates: "data/pancreatic/PC3/outs/binned_outputs/square_002um/spatial/tissue_positions.parquet"
-    counts     : "data/pancreatic/PC3/outs/binned_outputs/square_002um/filtered_feature_bc_matrix.h5"
-    image      : "data/images/uploads/PC3.tif"
-    scale      : "data/pancreatic/PC3/outs/binned_outputs/square_002um/spatial/scalefactors_json.json"
+    coordinates: "data/spatial/PC3/tissue_positions.parquet"
+    counts     : "data/spatial/PC3/filtered_feature_bc_matrix.h5"
+    image      : "data/spatial/PC3/PC3.tif"
+    scale      : "data/spatial/PC3/scalefactors_json.json"
     cancer_type: "pancreas"
+    type       : "HD"
+  Visium_Ovary:
+    coordinates: "data/visium/ovarian/tissue_positions.csv"
+    counts     : "data/visium/ovarian/CytAssist_11mm_FFPE_Human_Ovarian_Carcinoma_filtered_feature_bc_matrix.h5"
+    image      : "data/visium/ovarian/tissue_hires_image.png"
+    scale      : "data/visium/ovarian/scalefactors_json.json"
+    cancer_type: "ovary"
+    type       : "visium"
+  Visium_Pancreas:
+    coordinates: "data/visium/pancreatic/ctrl_HT264P1-S1H2Fc2U1Z1Bs1-H2Bs2-Test-tissue_positions_list.csv"
+    counts     : "data/visium/pancreatic/"
+    image      : "data/visium/pancreatic/ctrl_HT264P1-S1H2Fc2U1Z1Bs1-H2Bs2-Test-tissue_lowres_image.png"
+    scale      : "data/visium/pancreatic/ctrl_HT264P1-S1H2Fc2U1Z1Bs1-H2Bs2-Test-scalefactors_json.json"
+    cancer_type: "pancreas"
+    type       : "visium"
   
 # QC parameters
 qc:
-  min_cells       : 100
-  min_features    : 100
-  bin_size        : 64
-  count_threshold : 0.10
+  HD:
+    min_cells        : 100
+    min_features     : 100
+    bin_size         : 64
+    count_threshold  : 0.10
+    downsample_pixels: 4000
+  visium:
+    min_cells        : 100
+    min_features     : 100
+    bin_size         : 1
+    count_threshold  : 0.10
+    downsample_pixels: 0
 
 
 # Vesalius parameters
 vesalius:
-  feature_set   : true
-  resolution    : 0.1
-  dim_reduc     : "PCA"
-  dims          : 30
-  equalize      : 2.5
-  sigma         : 5
-  iter          : 20
-  col_resolution: 8
-  distance      : 0.1
+  HD:
+    feature_set      : true
+    resolution       : 0.1
+    dim_reduc        : "PCA"
+    dims             : 30
+    equalize         : 2.5
+    sigma            : 5
+    iter             : 20
+    col_resolution   : 8
+    distance         : 0.1
+    
+  visium:
+    feature_set      : true
+    resolution       : 0.1
+    dim_reduc        : "PCA"
+    dims             : 7
+    equalize         : 2
+    sigma            : 4
+    iter             : 10
+    col_resolution   : 5
+    distance         : 0.25
+   
 
 
 # Kuresi parameters
 kuresi:
-  method: "mean_ratio"
-  scale : false
-  center: false
-  rank  : false
- 
+  method           : "mean_ratio"
+  scale            : false
+  center           : false
+  rank             : false
+  
 
  
 
@@ -89,17 +134,17 @@ kuresi:
 
 resources:
   qc:
-    mem_mb: 80000      
+    mem_mb  : 80000      
     time_min: 120       
-    cpus: 1           
+    cpus    : 1           
   vesalius:
-    mem_mb: 250000
+    mem_mb  : 250000
     time_min: 480      
-    cpus: 1          
+    cpus    : 1          
   kuresi:
-    mem_mb: 80000      
+    mem_mb  : 80000      
     time_min: 120      
-    cpus: 1            
+    cpus    : 1            
   
              
 
@@ -111,11 +156,11 @@ resources:
 # Adjust based on your HPC's queue names (check with: sinfo)
 slurm:
   slurm_account: "martinp4"
-  partition: defq
-  mail_type : FAIL,BEGIN,END
-  mail_user : patrick.martin@cshs.org
+  partition    : defq
+  mail_type    : FAIL,BEGIN,END
+  mail_user    : patrick.martin@cshs.org
   
 
 # Logging
-log_dir: "logs"
+log_dir : "logs"
 slurm_log_dir: "logs/slurm"  # For SLURM output files

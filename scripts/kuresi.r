@@ -24,6 +24,7 @@ p <- add_argument(p, "--scale", short = "-s", help = "Scale Ratio Score", type =
 p <- add_argument(p, "--center", short = "-c", help = "Center Ratio Score", type = "logical")
 p <- add_argument(p, "--rank", short = "-r", help = "Rank Ratio Score", type = "logical")
 p <- add_argument(p, "--bin_size", short = "-b", help = "Bin Size", type = "numeric")
+p <- add_argument(p, "--downsample_pixels", short = "-d", help = "Max number of pixels", type = "numeric")
 p <- add_argument(p, "--output_dir", short = "-o", help = "Output Kuresi Scores", type = "character")
 p <- add_argument(p, "--report_file", short = "-rf", help = "Report File to generate", type = "character")
 
@@ -36,6 +37,7 @@ scale <- argv$scale
 center <- argv$center
 rank <- argv$rank
 bin_size <- argv$bin_size
+downsample_pixels <- argv$downsample_pixels
 output_dir <- argv$output_dir
 report_file <- argv$report_file
 source("scripts/utils/viz.r")
@@ -105,7 +107,11 @@ if (method == "ELO") {
     colnames(kuresi_score) <- gsub(method,"score",colnames(kuresi_score))
 }
 kuresi_score_orig <- set_original_coordinates(vesalius,kuresi_score)
-kur <- view_scores(kuresi_score_orig,img = image, bin_size, palette = "kuresi")
+kur <- view_scores(kuresi_score_orig,
+                   img = image,
+                   bin_size = bin_size,
+                   max_display_px = downsample_pixels,
+                   palette = "kuresi")
 ggsave(file.path(output_dir, "kuresi_score_plot.tiff"), plot = kur, width = 8, height = 8, units = "in")
 #-----------------------------------------------------------------------------#
 # Export and Save

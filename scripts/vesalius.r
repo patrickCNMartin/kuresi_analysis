@@ -44,6 +44,8 @@ p <- add_argument(p, "--distance", short = "-ds", help = "Territory pooling dist
 
 p <- add_argument(p, "--bin_size", short = "-b", help = "bin size", type = "numeric")
 
+p <- add_argument(p, "--downsample_pixels", short = "-dp", help = "Max number of pixels", type = "numeric")
+
 p <- add_argument(p, "--output_dir", short = "-od", help = "Output Directory for results and meta data", type = "character")
 
 p <- add_argument(p, "--report_file", short = "-rf", help = "Report File to generate", type = "character")
@@ -65,6 +67,7 @@ iter <- argv$iter
 col_resolution <- argv$col_resolution
 distance <- argv$distance
 bin_size <- argv$bin_size
+downsample_pixels <- argv$downsample_pixels
 output_dir <- argv$output_dir
 report_file <- argv$report_file
 cores <- argv$cores
@@ -145,7 +148,10 @@ cat("Territory Pooling - Completed\n")
 #-----------------------------------------------------------------------------#
 img <- image_plot(vesalius)
 score <- get_orig_coordinates(vesalius)
-ter <- view_scores(score, img = image, bin_size)
+ter <- view_scores(score,
+                   img = image,
+                   bin_size = bin_size,
+                   max_display_px = downsample_pixels)
 ggsave(file.path(output_dir, "vesalius_image_plot.tiff"), plot = img, width = 8, height = 8, units = "in")
 ggsave(file.path(output_dir, "vesalius_territory_plot.tiff"), plot = ter, width = 8, height = 8, units = "in")
 #-----------------------------------------------------------------------------#

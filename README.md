@@ -18,8 +18,15 @@ kuresi_analysis/
 
 ## Data
 
+### VisiumHD
+
 Processed data is not distributed with this repository. Placeholders are provided in `data/` alongside md5 checksums for verification. 
 
+### Visium
+Data is publicly availble at:
+
+* Ovarian Cancer [TO ADD]
+* Pancreatic Cancer [TO ADD]
 
 ## Usage
 

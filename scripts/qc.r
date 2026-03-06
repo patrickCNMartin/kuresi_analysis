@@ -29,7 +29,11 @@ p <- add_argument(p, "--scale", short = "-sc", help = "Path to scale factors", t
 
 p <- add_argument(p, "--cancer_type", short = "-ct", help = "Cancer type", type = "character")
 
+p <- add_argument(p, "--data_type", short = "-dt", help = "Data type type", type = "character")
+
 p <- add_argument(p, "--count_threshold", short = "-cot", help = "Gene Count threshold", type = "numeric")
+
+p <- add_argument(p, "--downsample_pixels", short = "-d", help = "Max number of pixels", type = "numeric")
 
 p <- add_argument(p, "--bin_size", short = "-r", help = "Number of bins (assuming 2um base data)", type = "numeric")
 
@@ -49,8 +53,10 @@ coordinates <- argv$coordinates
 image <- argv$image
 scale <- argv$scale
 cancer_type <- argv$cancer_type
+data_type <- argv$data_type
 count_threshold <- argv$count_threshold
 bin_size <- argv$bin_size
+downsample_pixels <- argv$downsample_pixels
 min_features <- argv$min_features
 min_cells <- argv$min_cells
 output_dir <- argv$output_dir
@@ -63,7 +69,14 @@ source("scripts/utils/viz.r")
 # Load data
 #-----------------------------------------------------------------------------#
 cat("QC Start \n")
-data <- load_visiumhd(counts, coordinates, image , scale)
+if (data_type == "HD") {
+    data <- load_visiumhd(counts, coordinates, image , scale)
+} else if (data_type == "visium") {
+    data <- load_visium(counts, coordinates, image , scale)
+} else {
+    stop("Unknown data type")
+}
+
 # Win lose sets
 gene_sets <- win_lose_genes()
 win_genes <- gene_sets$win
@@ -78,7 +91,10 @@ cat("Data Loading - Completed\n")
 #-----------------------------------------------------------------------------#
 # Binning data
 #-----------------------------------------------------------------------------#
-aggregated_data <- bin_spatial_data(data$counts, data$coord, bin_size = bin_size)
+aggregated_data <- bin_spatial_data(data$counts,
+                                    data$coord,
+                                    bin_size = bin_size,
+                                    scale_factor = data$scale)
 
 #-----------------------------------------------------------------------------#
 # Count Filtering
@@ -102,11 +118,13 @@ coord <- aggregated_data$coords[aggregated_data$coords$barcodes %in% colnames(co
 qc_1 <- view_feature_map(cancer_counts,
                          cancer_coord,
                          img = data$image,
-                         bin_size = bin_size)
+                         bin_size = bin_size,
+                         max_display_px = downsample_pixels)
 qc_2 <- view_count_map(counts,
                        coord,
                        img = data$image,
-                       bin_size = bin_size)
+                       bin_size = bin_size,
+                       max_display_px = downsample_pixels)
 ggsave(file.path(output_dir, "cancer_feature_map.tiff"), plot = qc_1, width = 8, height = 8, units = "in")
 ggsave(file.path(output_dir, "cancer_count_map.tiff"), plot = qc_2, width = 8, height = 8, units = "in")
 #-----------------------------------------------------------------------------#
@@ -115,11 +133,13 @@ ggsave(file.path(output_dir, "cancer_count_map.tiff"), plot = qc_2, width = 8, h
 qc_3 <- view_feature_map(counts,
                          coord,
                          img = data$image,
-                         bin_size = bin_size)
+                         bin_size = bin_size,
+                         max_display_px = downsample_pixels)
 qc_4 <- view_count_map(counts,
                        coord,
                        img = data$image,
-                       bin_size = bin_size)
+                       bin_size = bin_size,
+                       max_display_px = downsample_pixels)
 ggsave(file.path(output_dir, "feature_map.tiff"), plot = qc_3, width = 12, height = 12, units = "in")
 ggsave(file.path(output_dir, "count_map.tiff"), plot = qc_4, width = 12, height = 12, units = "in")
 
@@ -130,12 +150,14 @@ qc_5 <- view_feature_map(counts,
                          coord,
                          features,
                          img = data$image,
-                         bin_size = bin_size)
+                         bin_size = bin_size,
+                         max_display_px = downsample_pixels)
 qc_6 <- view_count_map(counts,
                        coord,
                        features,
                        img = data$image,
-                       bin_size = bin_size)
+                       bin_size = bin_size,
+                       max_display_px = downsample_pixels)
 ggsave(file.path(output_dir, "feature_map_win_loose.tiff"), plot = qc_5, width = 8, height = 8, units = "in")
 ggsave(file.path(output_dir, "count_map_win_loose.tiff"), plot = qc_6, width = 8, height = 8, units = "in")
 #-----------------------------------------------------------------------------#
