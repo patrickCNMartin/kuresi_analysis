@@ -85,7 +85,7 @@ qc:
   visium:
     min_cells        : 100
     min_features     : 100
-    bin_size         : 1
+    bin_size         : 0
     count_threshold  : 0.10
     downsample_pixels: 0
 
@@ -105,7 +105,7 @@ vesalius:
     
   visium:
     feature_set      : true
-    resolution       : 0.1
+    resolution       : 0.3
     dim_reduc        : "PCA"
     dims             : 7
     equalize         : 2

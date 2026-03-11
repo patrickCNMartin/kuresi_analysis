@@ -38,8 +38,8 @@ bin_spatial_data <- function(counts,
     if (is.null(scale_factor)){
         stop("Oh no... that's not a scale factor")
     }
-    coordinates$pxl_row_in_fullres <- coordinates$pxl_row_in_fullres * scale_factor
-    coordinates$pxl_col_in_fullres <- coordinates$pxl_col_in_fullres * scale_factor
+    coordinates$pxl_row_in_fullres <- as.numeric(coordinates$pxl_row_in_fullres) * scale_factor
+    coordinates$pxl_col_in_fullres <- as.numeric(coordinates$pxl_col_in_fullres) * scale_factor
     return(list(
         counts = counts,
         coords = coordinates

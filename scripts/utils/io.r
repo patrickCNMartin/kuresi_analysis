@@ -69,6 +69,7 @@ load_visium <- function(
     if (endsWith( counts,"h5")) {
         counts <- Seurat::Read10X_h5(counts)
         counts <- counts[,order(colnames(counts), decreasing = FALSE)]
+        counts <- counts[!duplicated(rownames(counts)),]
     } else if (file.info(counts)$isdir) {
         mtx <- list.files(counts, pattern = ".mtx.gz", full.names = TRUE)
         features <- list.files(counts, pattern = "features.tsv.gz", full.names = TRUE)
@@ -80,6 +81,8 @@ load_visium <- function(
         rownames(counts) <- feat
         colnames(counts) <- bar
         counts <- counts[,order(colnames(counts), decreasing = FALSE)]
+        counts <- counts[,colnames(counts) %in% coordinates$barcodes]
+        counts <- counts[!duplicated(rownames(counts)),]
     }
     if (grepl("lowres", image)){
         scale <- fromJSON(scale_factor)$tissue_lowres_scalef
